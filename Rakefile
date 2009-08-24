@@ -8,6 +8,7 @@ Hoe.new('tomcap', Tomcap::VERSION) do |p|
   p.summary = 'Tomcat deployment with Capistrano'
   p.description = 'Capistrano tasks which allow you to quickly and easily deploy Java WAR files located in remote repositories (currently Artifactory repos) to a running Tomcat container.'
   p.url = 'http://github.com/ienders/tomcap/tree/master'
+  p.changes = p.paragraphs_of('History.txt', 0..1).join("\n\n")
   p.extra_deps << ['capistrano', '>= 2.2.0']
 end
 

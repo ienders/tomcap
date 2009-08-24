@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.date = %q{2009-08-24}
   s.description = %q{Capistrano tasks which allow you to quickly and easily deploy Java WAR files located in remote repositories (currently Artifactory repos) to a running Tomcat container.}
   s.email = %q{ian.enders@gmail.com}
-  s.files = ["README.txt", "lib/tomcap.rb", "lib/tomcap/recipes.rb"]
+  s.files = ["History.txt", "Manifest.txt", "README.txt", "lib/tomcap.rb", "lib/tomcap/recipes.rb"]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/ienders/tomcap/tree/master}
   s.rdoc_options = ["--main", "README.txt"]

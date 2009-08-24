@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{tomcap}
-  s.version = "1.0"
+  s.version = "1.0.1"
 
   s.specification_version = 2 if s.respond_to? :specification_version=
 
@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/ienders/tomcap/tree/master}
   s.rdoc_options = ["--main", "README.txt"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.0.1}
+  s.rubygems_version = %q{1.3.1}
   s.summary = %q{Tomcat deployments with Capistrano}
 
   s.add_dependency(%q<capistrano>, [">= 2.2.0"])

@@ -24,27 +24,37 @@ Capistrano::Configuration.instance(:must_exist).load do
       set :artifactory_url, "http://localhost:8080/artifactory"
     DESC
     task :java, :roles => :java, :except => { :no_release => true } do
-      raise ArgumentError, "Must set tomcat_user" unless tomcat_user
-      raise ArgumentError, "Must set tomcat_pass" unless tomcat_pass
-      raise ArgumentError, "Must set mvn_repo_user" unless mvn_repo_user
-      raise ArgumentError, "Must set mvn_repo_pass" unless mvn_repo_pass
-      raise ArgumentError, "Must set mvn_repository" unless mvn_repository
-      raise ArgumentError, "Must set mvn_war_group_id" unless mvn_war_group_id
-      raise ArgumentError, "Must set mvn_war_artifact_id" unless mvn_war_artifact_id
-      raise ArgumentError, "Must set mvn_war_version" unless mvn_war_version
-      
+      require 'net/http'
+
+      raise ArgumentError, "Must set tomcat_user" unless tomcat_user = fetch(:tomcat_user, nil)
+      raise ArgumentError, "Must set tomcat_pass" unless tomcat_pass = fetch(:tomcat_pass, nil)
+      raise ArgumentError, "Must set mvn_repo_user" unless mvn_repo_user = fetch(:mvn_repo_user, nil)
+      raise ArgumentError, "Must set mvn_repo_pass" unless mvn_repo_pass = fetch(:mvn_repo_pass, nil)
+      raise ArgumentError, "Must set mvn_repository" unless mvn_repository = fetch(:mvn_repository, nil)
+      raise ArgumentError, "Must set mvn_war_group_id" unless mvn_war_group_id = fetch(:mvn_war_group_id, nil)
+      raise ArgumentError, "Must set mvn_war_artifact_id" unless mvn_war_artifact_id = fetch(:mvn_war_artifact_id, nil)
+      raise ArgumentError, "Must set mvn_war_version" unless mvn_war_version = fetch(:mvn_war_version, nil)
+
+      war_file = "#{mvn_war_artifact_id}-#{mvn_war_version}.war"
+
+      run "rm -rf #{shared_path}/cached_java_copy/#{war_file}"
+
       tomcat_url = fetch(:tomcat_url, "http://localhost:8080")
       artifactory_url = fetch(:artifactory_url, "http://localhost:8080/artifactory")
-      
+
       war_path = "#{artifactory_url}/#{mvn_repository}/#{mvn_war_group_id.gsub(/\./, '/')}/#{mvn_war_artifact_id}/#{mvn_war_version}"
-      war_file = "#{mvn_war_artifact_id}-#{mvn_war_version}.war"
-      
+
       run <<-CMD
         cd #{shared_path}/cached_java_copy &&
-        wget #{war_path}/#{war_file}" &&
-        curl -F "@#{war_file}" #{tomcat_url}/manager/deploy?path=#{mvn_war_artifact_id}-#{mvn_war_version}&update=true
+        wget #{war_path}/#{war_file} --user=#{mvn_repo_user} --password=#{mvn_repo_pass}
       CMD
-    end    
+
+      manager_url = "#{tomcat_url}/manager"
+      context_path = "/#{mvn_war_artifact_id}-#{mvn_war_version}"
+
+      run "curl -v -u #{tomcat_user}:#{tomcat_pass} #{manager_url}/undeploy?path=#{context_path}"
+      run "curl -v -u #{tomcat_user}:#{tomcat_pass} \"#{manager_url}/deploy?path=#{context_path}&war=file:#{shared_path}/cached_java_copy/#{war_file}\""
+    end
   end
   
   before "deploy:java", "deploy:setup_java"

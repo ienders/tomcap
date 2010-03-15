@@ -56,25 +56,41 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "curl -v -u #{tomcat_user}:#{tomcat_pass} #{manager_url}/undeploy?path=#{context_path}"
       run "curl -v -u #{tomcat_user}:#{tomcat_pass} \"#{manager_url}/deploy?path=#{context_path}&war=file:#{shared_path}/cached_java_copy/#{war_file}\""
     end
+    
+    namespace :tomcat  do
+      desc "stop tomcat"
+      task :stop, :roles => :java do
+        sudo "#{tomcat_initd_script} stop ; echo '' "
+      end
+      desc "start tomcat"
+      task :start, :roles => :java do
+        sudo "#{tomcat_initd_script} start"
+      end
+      desc "kill tomcat processes"
+      task :kill, :roles => :java do
+        sudo "ps -ef | grep 'tomcat' | awk '{print $2}'| xargs -i kill {} ; echo ''"
+      end
+      desc "view running tomcat processes"
+      task :processes, :roles => :java do
+        puts "  ********************\n  * running tomcat processes: "
+        sudo "ps -ef | grep 'tomcat'"
+      end  
+      desc "restart tomcat"
+      task :restart, :roles => :java do
+        wait_time = 60
+        processes
+        puts "  ********************\n  * tomcat stopping (with #{wait_time} sec wait)..."
+        stop
+        sleep wait_time
+        processes
+        puts "  ********************\n  * tomcat restarting..."
+        start
+        processes
+      end
+    end
+    
   end
   
-  namespace :tomcat  do
-    task :stop do
-      sudo "#{tomcat_initd_script} stop"
-    end
-
-    task :start do
-      sudo "#{tomcat_initd_script} start"
-    end
-
-    task :restart do
-      stop_tomcat
-      puts "tomcat stopping..."
-      sleep 15
-      puts "tomcat restarting..."
-      start_tomcat
-    end
-  end
   
   before "deploy:java", "deploy:setup_java"
   

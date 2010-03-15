@@ -70,7 +70,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :restart do
       stop_tomcat
       puts "tomcat stopping..."
-      sleep 30
+      sleep 15
       puts "tomcat restarting..."
       start_tomcat
     end

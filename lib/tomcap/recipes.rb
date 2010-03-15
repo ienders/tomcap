@@ -20,8 +20,9 @@ Capistrano::Configuration.instance(:must_exist).load do
       set :mvn_war_version,     "1.0-SNAPSHOT"
       
       Optional Arguments (defaults specified):
-      set :tomcat_url,      "http://localhost:8080"
-      set :artifactory_url, "http://localhost:8080/artifactory"
+      set :tomcat_url,          "http://localhost:8080"
+      set :artifactory_url,     "http://localhost:8080/artifactory"
+      set :tomcat_initd_script, "/etc/init.d/tomcat"
     DESC
     task :java, :roles => :java, :except => { :no_release => true } do
       require 'net/http'
@@ -54,6 +55,24 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       run "curl -v -u #{tomcat_user}:#{tomcat_pass} #{manager_url}/undeploy?path=#{context_path}"
       run "curl -v -u #{tomcat_user}:#{tomcat_pass} \"#{manager_url}/deploy?path=#{context_path}&war=file:#{shared_path}/cached_java_copy/#{war_file}\""
+    end
+  end
+  
+  namespace :tomcat  do
+    task :stop do
+      sudo "#{tomcat_initd_script} stop"
+    end
+
+    task :start do
+      sudo "#{tomcat_initd_script} start"
+    end
+
+    task :restart do
+      stop_tomcat
+      puts "tomcat stopping..."
+      sleep 30
+      puts "tomcat restarting..."
+      start_tomcat
     end
   end
   

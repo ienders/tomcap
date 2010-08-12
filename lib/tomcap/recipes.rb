@@ -1,7 +1,7 @@
 Capistrano::Configuration.instance(:must_exist).load do
   
   namespace :deploy do
-    task :setup_java, :roles => :java, :except => { :no_release => true } do
+    task :setup_java, :roles => :java do
       run "mkdir -p #{shared_path}/cached_java_copy"
     end
     
@@ -24,7 +24,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       set :artifactory_url,     "http://localhost:8080/artifactory"
       set :tomcat_initd_script, "/etc/init.d/tomcat"
     DESC
-    task :java, :roles => :java, :except => { :no_release => true } do
+    task :java, :roles => :java do
       require 'net/http'
 
       raise ArgumentError, "Must set tomcat_user" unless tomcat_user = fetch(:tomcat_user, nil)
@@ -68,7 +68,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
       desc "kill tomcat processes"
       task :kill, :roles => :java do
-        sudo "ps -ef | grep 'tomcat' | awk '{print $2}'| xargs -i kill {} ; echo ''"
+        sudo "ps -ef | grep 'tomcat' | grep -v 'grep' | awk '{print $2}'| xargs -i kill {} ; echo ''"
       end
       desc "view running tomcat processes"
       task :processes, :roles => :java do

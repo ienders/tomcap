@@ -14,8 +14,9 @@ Capistrano tasks which allow you to quickly and easily deploy Java WAR files loc
 
 == INSTALLATION:
 
- $ gem sources -a http://gems.github.com/ (if you havn't already, which is unlikely)
- $ gem install ienders-tomcap
+No longer hosted in git gems.  From 1.0.3 can be found in RubyGems.
+
+ $ gem install tomcap
 
 == USAGE:
 

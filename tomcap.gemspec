@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{tomcap}
-  s.version = "1.0.2"
+  s.version = "1.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ian Enders"]
-  s.date = %q{2009-08-24}
+  s.date = %q{2010-08-12}
   s.description = %q{Capistrano tasks which allow you to quickly and easily deploy Java WAR files located in remote repositories (currently Artifactory repos) to a running Tomcat container.}
   s.email = %q{ian.enders@gmail.com}
   s.extra_rdoc_files = [
@@ -20,20 +20,20 @@ Gem::Specification.new do |s|
      "README.txt",
      "Rakefile",
      "VERSION",
-     "lib/tomcap/recipes.rb"
+     "lib/tomcap/recipes.rb",
+     "tomcap.gemspec"
   ]
-  s.has_rdoc = true
   s.homepage = %q{http://github.com/ienders/tomcap}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.1}
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{Tomcat deployment with Capistrano}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
-    s.specification_version = 2
+    s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
     else
     end
   else

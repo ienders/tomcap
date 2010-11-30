@@ -14,7 +14,7 @@ Capistrano tasks which allow you to quickly and easily deploy Java WAR files loc
 
 == INSTALLATION:
 
-No longer hosted in git gems.  From 1.0.3 can be found in RubyGems.
+No longer hosted in git gems.  From 1.0.3+ can be found in RubyGems.
 
  $ gem install tomcap
 
@@ -25,6 +25,10 @@ No longer hosted in git gems.  From 1.0.3 can be found in RubyGems.
 In your deploy.rb, simply include this line at the top:
 
   require 'tomcap/recipes'
+
+NEW: If you're using Tomcat 7, instead, require recipes7 (everything else is the same aside from standard Tomcat permission changes).
+
+  require 'tomcap/recipes7'
 
 = Set your configuration parameters
 

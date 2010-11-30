@@ -5,7 +5,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "mkdir -p #{shared_path}/cached_java_copy"
     end
     
-    
     desc <<-DESC
       Deploy Java WAR to a running Tomcat container.
       
@@ -50,7 +49,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         wget #{war_path}/#{war_file} --user=#{mvn_repo_user} --password=#{mvn_repo_pass}
       CMD
 
-      manager_url = "#{tomcat_url}/manager"
+      manager_url = "#{tomcat_url}/#{fetch(:tomcat_manager_url, 'manager')}"
       context_path = "/#{mvn_war_artifact_id}-#{mvn_war_version}"
 
       run "curl -v -u #{tomcat_user}:#{tomcat_pass} #{manager_url}/undeploy?path=#{context_path}"

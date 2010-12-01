@@ -19,12 +19,14 @@ Capistrano::Configuration.instance(:must_exist).load do
       set :mvn_war_version,     "1.0-SNAPSHOT"
       
       Optional Arguments (defaults specified):
-      set :tomcat_url,          "http://localhost:8080"
-      set :artifactory_url,     "http://localhost:8080/artifactory"
-      set :tomcat_initd_script, "/etc/init.d/tomcat"
+      set :tomcat_url,              "http://localhost:8080"
+      set :artifactory_url,         "http://localhost:8080/artifactory"
+      set :tomcat_initd_script,     "/etc/init.d/tomcat"
+      set :parse_snapshot_metadata, false
     DESC
     task :java, :roles => :java do
       require 'net/http'
+      require 'rexml/document'
 
       raise ArgumentError, "Must set tomcat_user" unless tomcat_user = fetch(:tomcat_user, nil)
       raise ArgumentError, "Must set tomcat_pass" unless tomcat_pass = fetch(:tomcat_pass, nil)
@@ -34,15 +36,35 @@ Capistrano::Configuration.instance(:must_exist).load do
       raise ArgumentError, "Must set mvn_war_group_id" unless mvn_war_group_id = fetch(:mvn_war_group_id, nil)
       raise ArgumentError, "Must set mvn_war_artifact_id" unless mvn_war_artifact_id = fetch(:mvn_war_artifact_id, nil)
       raise ArgumentError, "Must set mvn_war_version" unless mvn_war_version = fetch(:mvn_war_version, nil)
-
-      war_file = "#{mvn_war_artifact_id}-#{mvn_war_version}.war"
-
-      run "rm -rf #{shared_path}/cached_java_copy/#{war_file}"
+      
+      run "rm -rf #{shared_path}/cached_java_copy/#{mvn_war_artifact_id}-*.war"
 
       tomcat_url = fetch(:tomcat_url, "http://localhost:8080")
       artifactory_url = fetch(:artifactory_url, "http://localhost:8080/artifactory")
 
       war_path = "#{artifactory_url}/#{mvn_repository}/#{mvn_war_group_id.gsub(/\./, '/')}/#{mvn_war_artifact_id}/#{mvn_war_version}"
+
+      if fetch(:parse_snapshot_metadata, false)
+        timestamp = nil
+        build_number = nil
+        uri = URI.parse("#{war_path}/maven-metadata.xml")        
+        Net::HTTP.start(uri.host, Net::HTTP.http_default_port) do |http|
+          req = Net::HTTP::Get.new(uri.path)
+          req.basic_auth(mvn_repo_user, mvn_repo_pass)
+          response = http.request(req)
+          doc = REXML::Document.new(response.body)
+          doc.elements.each('metadata/versioning/snapshot/timestamp') do |e|
+            timestamp = e.text
+          end
+          doc.elements.each('metadata/versioning/snapshot/buildNumber') do |e|
+            build_number = e.text
+          end          
+          raise Exception.new("Unable to determine timestamp and builder number for snapshot.") if !timestamp || !build_number
+        end
+        war_file = "#{mvn_war_artifact_id}-#{mvn_war_version.gsub(/SNAPSHOT/, "#{timestamp}-#{build_number}")}.war"
+      else
+        war_file = "#{mvn_war_artifact_id}-#{mvn_war_version}.war"
+      end
 
       run <<-CMD
         cd #{shared_path}/cached_java_copy &&

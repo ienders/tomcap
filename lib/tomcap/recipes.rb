@@ -48,7 +48,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         timestamp = nil
         build_number = nil
         uri = URI.parse("#{war_path}/maven-metadata.xml")        
-        Net::HTTP.start(uri.host, Net::HTTP.http_default_port) do |http|
+        Net::HTTP.start(uri.host,uri.port) do |http|
           req = Net::HTTP::Get.new(uri.path)
           req.basic_auth(mvn_repo_user, mvn_repo_pass)
           response = http.request(req)
